@@ -1,0 +1,96 @@
+/* 전체 배경 설정 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&w=1950&q=80');
+    background-size: cover;
+    background-position: center;
+    color: #f0f5f1;
+}
+
+/* 반투명한 콘텐츠 박스 */
+.container {
+    max-width: 600px;
+    margin: 80px auto;
+    background-color: rgba(0, 60, 40, 0.8);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+/* 제목 */
+.container h1, .container h2 {
+    text-align: center;
+    color: #b8e994;
+}
+
+/* 폼 요소 */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+label {
+    font-weight: bold;
+    color: #dfe6e9;
+}
+
+input[type="file"] {
+    padding: 10px;
+    background-color: #dfe6e9;
+    border: none;
+    border-radius: 8px;
+    color: #2d3436;
+}
+
+button {
+    padding: 12px;
+    background-color: #55efc4;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2d3436;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #00b894;
+    color: white;
+}
+
+/* 이미지 미리보기 */
+.image-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.image-item {
+    background-color: #1e352f;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.image-item img {
+    max-width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.image-item a {
+    display: inline-block;
+    margin-top: 10px;
+    color: #a3f7bf;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.image-item a:hover {
+    text-decoration: underline;
+}

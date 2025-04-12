@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF to JPG Converter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>PDF to JPG 변환기</h1>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <label for="pdfFile">PDF 파일 선택:</label>
+            <input type="file" id="pdfFile" name="pdfFile" accept=".pdf" required>
+            <button type="submit">변환하기</button>
+        </form>
+
+        {% if image_urls %}
+            <h2>변환된 이미지</h2>
+            <div class="image-preview">
+                {% for img_url in image_urls %}
+                    <div class="image-item">
+                        <img src="{{ img_url }}" alt="Converted Image">
+                        <a href="{{ img_url }}" download>다운로드</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
