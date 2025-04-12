@@ -1,53 +1,68 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
-from werkzeug.utils import secure_filename
-from pdfimg import pdf_to_img  # pdfimg 사용
+import uuid
+import shutil
+from flask import Flask, render_template, request, jsonify, send_from_directory
+from pdf2image import convert_from_bytes
+from PIL import Image
+from zipfile import ZipFile
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'static/outputs'
+app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 최대 20MB
 
-# 업로드 및 변환된 이미지 저장 폴더
-UPLOAD_FOLDER = 'uploads'
-CONVERTED_FOLDER = 'static/converted'
+# 출력 폴더 없으면 생성
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# 폴더 생성
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(CONVERTED_FOLDER, exist_ok=True)
-
-@app.route('/', methods=['GET'])
+@app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'pdfFile' not in request.files:
-        return redirect(request.url)
+@app.route('/convert', methods=['POST'])
+def convert():
+    if 'pdf_file' not in request.files:
+        return jsonify({'success': False, 'message': '파일이 없습니다.'})
 
-    file = request.files['pdfFile']
-    if file.filename == '':
-        return redirect(request.url)
+    pdf_file = request.files['pdf_file']
+    if pdf_file.filename == '':
+        return jsonify({'success': False, 'message': '파일이 선택되지 않았습니다.'})
 
-    if file:
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(filepath)
+    try:
+        # 고유한 디렉토리 생성
+        session_id = str(uuid.uuid4())
+        output_dir = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+        os.makedirs(output_dir, exist_ok=True)
 
-        # pdfimg 사용하여 변환
-        try:
-            images = pdf_to_img(filepath)
-        except Exception as e:
-            return f"PDF 변환 실패: {e}"
+        # PDF → 이미지 변환
+        images = convert_from_bytes(pdf_file.read(), dpi=200)
+        image_paths = []
 
-        image_urls = []
-        base_filename = os.path.splitext(filename)[0]
-        for i, image in enumerate(images):
-            image_filename = f"{base_filename}_{i + 1}.jpg"
-            image_path = os.path.join(CONVERTED_FOLDER, image_filename)
-            image.save(image_path, 'JPEG')
-            image_urls.append(url_for('static', filename=f"converted/{image_filename}"))
+        for i, img in enumerate(images):
+            img_path = os.path.join(output_dir, f'page{i+1}.jpg')
+            img.save(img_path, 'JPEG')
+            image_paths.append('/' + img_path.replace('\\', '/'))
 
-        return render_template('index.html', image_urls=image_urls)
+        # 이미지 압축 (ZIP)
+        zip_filename = os.path.join(output_dir, 'converted_images.zip')
+        with ZipFile(zip_filename, 'w') as zipf:
+            for img_path in image_paths:
+                full_path = img_path.lstrip('/')
+                zipf.write(full_path, arcname=os.path.basename(full_path))
 
-    return redirect(url_for('index'))
+        return jsonify({
+            'success': True,
+            'images': image_paths,
+            'zip_url': '/' + zip_filename.replace('\\', '/')
+        })
+
+    except Exception as e:
+        print("변환 에러:", e)
+        return jsonify({'success': False, 'message': '서버 에러'})
+
+# 개발 중 static 파일 자동 새로고침 방지 (브라우저 캐시 무시)
+@app.after_request
+def add_header(response):
+    response.cache_control.no_store = True
+    return response
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000,debug=True)
