@@ -14,7 +14,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(CONVERTED_FOLDER, exist_ok=True)
 
 # PDF 변환 설정
-POPPLER_PATH = None  # 윈도우 사용자는 여기에 poppler 경로 지정 필요
+POPPLER_PATH = r"C:\Users\user\Downloads\poppler-24.08.0\Library\bin"  # 윈도우 사용자는 여기에 poppler 경로 지정 필요
 
 @app.route('/', methods=['GET'])
 def index():
