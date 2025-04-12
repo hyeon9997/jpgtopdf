@@ -14,17 +14,13 @@
             <button type="submit">변환하기</button>
         </form>
 
-        {% if image_urls %}
-            <h2>변환된 이미지</h2>
-            <div class="image-preview">
-                {% for img_url in image_urls %}
-                    <div class="image-item">
-                        <img src="{{ img_url }}" alt="Converted Image">
-                        <a href="{{ img_url }}" download>다운로드</a>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if file_url %}
+    <h2>업로드 완료</h2>
+    <p>PDF 파일이 업로드되었습니다:</p>
+    <a href="{{ file_url }}" target="_blank">파일 열기</a> |
+    <a href="{{ file_url }}" download>다운로드</a>
+    {% endif %}
+
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
