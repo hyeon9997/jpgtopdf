@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
-from pdf2image import convert_from_path
+from pdfimg import pdf_to_img  # pdfimg 사용
 
 app = Flask(__name__)
 
@@ -12,9 +12,6 @@ CONVERTED_FOLDER = 'static/converted'
 # 폴더 생성
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(CONVERTED_FOLDER, exist_ok=True)
-
-# PDF 변환 설정
-POPPLER_PATH = None  # 윈도우 사용자는 여기에 poppler 경로 지정 필요
 
 @app.route('/', methods=['GET'])
 def index():
@@ -34,9 +31,9 @@ def upload_file():
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
 
-        # PDF -> 이미지로 변환
+        # pdfimg 사용하여 변환
         try:
-            images = convert_from_path(filepath, poppler_path=POPPLER_PATH)
+            images = pdf_to_img(filepath)
         except Exception as e:
             return f"PDF 변환 실패: {e}"
 
